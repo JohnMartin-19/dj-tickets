@@ -5,43 +5,61 @@
 <h1>Store</h1>
 <br>
 <div class="row">
-	    <div class="col-lg-4">
-            <img class="thumbnail" src="{% static 'imgs/test_img.png' %}">
-            <div class="box-element product">
-                <h6><strong>Product</strong></h6>
-                <hr>
-        
-                <button  class="btn btn-outline-secondary add-btn">Add to Cart</button>
-                <a class="btn btn-outline-success" href="#">View</a>
-                <h4 style="display: inline-block; float: right"><strong>$20</strong></h4>
-            </div>
+    {% for event in events %}
+    <div class="col-lg-4">
+        <img class="thumbnail" src="{{ event.imageURL }}" alt="{{ event.title }}">
+        <div class="box-element product">
+            <h6><strong>{{ event.title }}</strong></h6>
+            <hr>
+            <!-- Button to trigger the modal -->
+            <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#eventModal{{ event.id }}">
+                Get Tickets
+            </button>
         </div>
-    
-        <div class="col-lg-4">
-            <img class="thumbnail" src="{% static 'imgs/test_img.png' %}">
-            <div class="box-element product">
-                <h6><strong>Product</strong></h6>
-                <hr>
-        
-                <button  class="btn btn-outline-secondary add-btn">Add to Cart</button>
-                <a class="btn btn-outline-success" href="#">View</a>
-                <h4 style="display: inline-block; float: right"><strong>$20</strong></h4>
-            </div>
-        </div>
+    </div>
 
-        <div class="col-lg-4">
-            <img class="thumbnail" src="{% static 'imgs/test_img.png' %}">
-            <div class="box-element product">
-                <h6><strong>Product</strong></h6>
-                <hr>
-        
-                <button  class="btn btn-outline-secondary add-btn">Add to Cart</button>
-                <a class="btn btn-outline-success" href="#">View</a>
-                <h4 style="display: inline-block; float: right"><strong>$20</strong></h4>
-                
+    <!-- Modal for each event -->
+    <div class="modal fade" id="eventModal{{ event.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ event.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Left Column: Event Image -->
+                        <div class="col-md-6">
+                            <img id="eventImage{{ event.id }}" src="{{ event.imageURL }}" alt="{{ event.title }}" class="img-fluid">
+                        </div>
+                        <!-- Right Column: Event Details and Google Maps -->
+                        <div class="col-md-6">
+                            <strong><h2 id="eventTitle{{ event.id }}">{{ event.title }}</h2></strong>
+                            <h5 id="eventLocation{{ event.id }}"><small>Location | {{ event.location }}</small></h5>
+                            <h5 id="eventDate{{ event.id }}"><small>Date | {{ event.date }}</small></h5>
+                            <h5><small>Maximum Capacity: {{ event.max_ticket }}</small></h5>
+                            <p>{{ event.description }}</p>
+                            <h5>Ticket Price: ${{ event.ticket_price }}</h5>
+                            
+
+                            <!-- Google Maps Embed -->
+                        </div>
+                    </div>
+                    <div class="mapouter">
+                        <div class="gmap_canvas">
+                            <iframe class="gmap_iframe" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                                src="https://maps.google.com/maps?width=1200&height=601&hl=en&q={{ event.location }}&t=&z=13&ie=UTF8&iwloc=B&output=embed"></iframe>
+                        </div>
+                        <style>
+                            .mapouter { position:relative;text-align:right;width:100%;height:601px; }
+                            .gmap_canvas { overflow:hidden;background:none!important;width:100%;height:601px; }
+                            .gmap_iframe { width:100%!important;height:601px!important; }
+                        </style>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+    {% endfor %}
 </div>
 
 
+
 {% endblock content %}
+
