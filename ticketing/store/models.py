@@ -42,6 +42,14 @@ class Order(models.Model):
     def __str__(self):
         return str(self.id)
     
+    @property
+    def shipping(self):
+        shipping = False
+        ticketItem = self.items.all()
+        for item in ticketItem:
+            if item.event.digital == False:
+                shipping = True
+        return shipping
 
     @property
     def get_cart_total(self):
@@ -87,3 +95,5 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return self.address
+    
+ 
