@@ -483,3 +483,54 @@ body {
         margin-bottom: 20px;
     }
 }
+
+/* 2K Resolution (2560x1440) */
+@media (min-width: 2560px) {
+    .form-field {
+        width: 400px; /* Larger input field for higher resolution */
+    }
+
+    .thumbnail {
+        height: 300px; /* Adjusted thumbnail size */
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: calc(1.75rem + 1vw); /* Larger font sizes */
+    }
+
+    /* Increase padding and font sizes in other components as needed */
+}
+
+/* 3K Resolution (2880x1620) */
+@media (min-width: 2880px) {
+    .form-field {
+        width: 450px;
+    }
+
+    .thumbnail {
+        height: 350px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: calc(2rem + 1vw);
+    }
+}
+
+/* 4K Resolution (3840x2160) */
+@media (min-width: 3840px) {
+    .form-field {
+        width: 500px;
+    }
+
+    .thumbnail {
+        height: 400px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: calc(2.5rem + 1vw);
+    }
+
+    .carousel-form {
+        width: 70%; /* Adjust form width for larger screens */
+    }
+}
