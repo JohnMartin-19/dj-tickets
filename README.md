@@ -14,7 +14,7 @@ python manage.py migrate -  make  migrations to the db
 
 # creating superuser/admin
 python manage.py createsuperuser
-   -You will be prompted to enter your email, username, password(NB) -  Ypu will use these credentials to access your admin panel(/admin)
+   -You will be prompted to enter your email, username, password(NB) -  You will use these credentials to access your admin panel(/admin)
 
 
 # run

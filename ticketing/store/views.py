@@ -1,10 +1,18 @@
+import base64
 from django.shortcuts import render
 from .models import *
-from django.http import JsonResponse
+from django.http import JsonResponse,request
 import json
+import requests
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from .utils import cookieCart,cartData,guestOrder
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+
+
 # Create your views here.
 def landing(request):
     context = {}
@@ -125,3 +133,145 @@ def processOrder(request):
         )
 
     return JsonResponse('Payment submitted..', safe=False)
+
+def callback(request):
+    context = {}
+    return render(request, 'store/callback.html')
+
+
+
+####MPESA STK
+
+# def get_access_token():
+#     mpesa_auth_url = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+
+#     response = requests.get(
+#         mpesa_auth_url, auth=HTTPBasicAuth(consumer_key, consumer_secret)
+#     )
+#     data = response.json()
+#     print(data)
+#     return data["access_token"]
+
+
+
+def generate_access_token():
+    consumer_key = "4NkzqcQNcpn7QA2TZ08z3wuT0tGDGQCE8t9hbsUSND7DBeWb"
+    consumer_secret = "tiBILGN3tKsYc2VlG4LzXF96WMT4fSNuv3IBVu7QlgCbVaV2tst2g0mDjtF9zSCr"
+
+    #choose one depending on you development environment
+    #sandbox
+    url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    #live
+    #url = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+
+    try:
+        
+        encoded_credentials = base64.b64encode(f"{consumer_key}:{consumer_secret}".encode()).decode()
+
+        
+        headers = {
+            "Authorization": f"Basic {encoded_credentials}",
+            "Content-Type": "application/json"
+        }
+
+        # Send the request and parse the response
+        response = requests.get(url, headers=headers).json()
+        print(response)
+        # Check for errors and return the access token
+        if "access_token" in response:
+            return response["access_token"]
+        else:
+            raise Exception("Failed to get access token: " + response["error_description"])
+    except Exception as e:
+        raise Exception("Failed to get access token: " + str(e)) 
+
+
+
+def stkpush(request):
+    """
+    STK push endpoint.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            amount:
+              type: integer
+            phone_number:
+              type: string
+    responses:
+      200:
+        description: A JSON object with STK push response.
+    """
+    try:
+        access_token = generate_access_token()
+        headers = {"Authorization": f"Bearer {access_token}"}
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        print("headers-->", headers)
+        business_short_code = '174379'
+        pass_key = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
+
+        data = json.loads(request.body)
+        phone_number = data.get('phone_number')
+        amount = data.get('amount')
+        print(f"Phone number: {phone_number}, Amount: {amount}")
+        web_name = "E-TICKETS"
+        stk_password = base64.b64encode((business_short_code + pass_key + timestamp).encode('utf-8')).decode('utf-8')
+
+        payload = {
+            "BusinessShortCode": business_short_code,
+            "Password": stk_password,
+            "Timestamp": timestamp,
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": amount,
+            "PartyA": phone_number,
+            "PartyB": business_short_code,
+            "PhoneNumber": phone_number,
+            "CallBackURL": "127.0.0.1:8000/callback/",
+            "AccountReference": web_name,
+            "TransactionDesc": "Payment of a ticket",
+        }
+
+        response = requests.post(
+            "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+            headers=headers,
+            json=payload,
+        )
+
+        return JsonResponse(response.json())  # Corrected line
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({'error': f'Request error: {e}'}, status=500)
+    except Exception as e:
+        print(f"Error in stkpush: {e}")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+
+
+@csrf_exempt  
+def mpesa_callback(request):
+    if request.method == 'POST':
+        try:
+            callback_data = json.loads(request.body)
+            # Process the callback data (update database, etc.)
+            print("M-Pesa callback received:", callback_data)
+
+            # Extract relevant information
+            merchant_request_id = callback_data.get("Body", {}).get("stkCallback", {}).get("MerchantRequestID")
+            checkout_request_id = callback_data.get("Body", {}).get("stkCallback", {}).get("CheckoutRequestID")
+            result_code = callback_data.get("Body", {}).get("stkCallback", {}).get("ResultCode")
+            result_desc = callback_data.get("Body", {}).get("stkCallback", {}).get("ResultDesc")
+
+            # Example: Update your database with the transaction status
+            # ... your database logic here ...
+
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})  # Respond with success
+        except Exception as e:
+            print(f"Error processing M-Pesa callback: {e}")
+            return JsonResponse({"ResultCode": 1, "ResultDesc": "Error"})  # Respond with error
+    else:
+        return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request method"})

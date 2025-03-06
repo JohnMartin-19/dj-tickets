@@ -42,6 +42,13 @@
             <small>Paypal Options</small>
             <div id="paypal-button-container"></div>
             <!-- s -->
+            <small>M-Pesa Options</small>
+            <form id="mpesa-form">
+                <div class="form-field">
+                    <input required class="form-control" type="text" name="phone_number" placeholder="Enter Phone Number (2547xxxxxxxx)">
+                </div>
+                <button id="mpesa-button" class="btn btn-outline-success btn-block" type="button">Pay with M-Pesa</button>
+            </form>
         </div>
 		
 	</div>
@@ -131,7 +138,41 @@
     //     submitFormData()
     // })
 
-    
+    document.getElementById('mpesa-button').addEventListener('click', function(e) {
+        e.preventDefault();
+        var phoneNumber = document.getElementById('mpesa-form').phone_number.value;
+        var total = parseFloat('{{ order.get_cart_total }}');
+        initiateMpesaPayment(phoneNumber, total);
+    });
+
+    function initiateMpesaPayment(phoneNumber, amount) {
+        console.log("M-Pesa payment initiated");
+        fetch('/stk_push/', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'phone_number': phoneNumber,
+                'amount': amount,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('repoosne data from saf',data)
+            if (data.ResponseCode === '0') {
+                $.notify("M-Pesa STK push sent. Check your phone.");
+                // Optionally, you can add a loading indicator or message.
+            } else {
+                $.notify("M-Pesa payment failed: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error initiating M-Pesa payment:", error);
+            alert("An error occurred during M-Pesa payment.");
+        });
+    }
 
     function submitFormData(){
         console.log('Payment button clicked iko on mbayaa')
