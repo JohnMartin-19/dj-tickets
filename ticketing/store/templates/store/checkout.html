@@ -104,7 +104,8 @@
 
     }).render('#paypal-button-container');
 </script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js"></script>
 
 <script type="text/javascript">
     var shipping = '{{order.shipping}}'
@@ -162,10 +163,10 @@
         .then(data => {
             console.log('repoosne data from saf',data)
             if (data.ResponseCode === '0') {
-                $.notify("M-Pesa STK push sent. Check your phone.");
+                alert("M-Pesa STK push sent. Check your phone.");
                 // Optionally, you can add a loading indicator or message.
             } else {
-                $.notify("M-Pesa payment failed: " + data.message);
+                alert("M-Pesa payment failed: " + data.message);
             }
         })
         .catch(error => {

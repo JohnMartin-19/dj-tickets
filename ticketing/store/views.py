@@ -230,7 +230,7 @@ def stkpush(request):
             "PartyA": phone_number,
             "PartyB": business_short_code,
             "PhoneNumber": phone_number,
-            "CallBackURL": "127.0.0.1:8000/callback/",
+            "CallBackURL": "https://da8e-102-210-40-50.ngrok-free.app/callback/",
             "AccountReference": web_name,
             "TransactionDesc": "Payment of a ticket",
         }
