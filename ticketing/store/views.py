@@ -190,21 +190,6 @@ def generate_access_token():
 def stkpush(request):
     """
     STK push endpoint.
-    ---
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            amount:
-              type: integer
-            phone_number:
-              type: string
-    responses:
-      200:
-        description: A JSON object with STK push response.
     """
     try:
         access_token = generate_access_token()

@@ -164,12 +164,14 @@
         .then(response => response.json())
         .then(data => {
             console.log('repoosne data from saf',data)
-            if (data.ResponseCode === '0') {
-                alert("M-Pesa STK push sent. Check your phone.");
-                // Optionally, you can add a loading indicator or message.
-            } else {
-                alert("M-Pesa payment failed: " + data.message);
-            }
+            alert("M-Pesa STK push sent. Check your phone.");
+            submitFormData()
+            // if (data.ResponseCode === '0') {
+            //     alert("M-Pesa STK push sent. Check your phone.");
+            //     // Optionally, you can add a loading indicator or message.
+            // } else {
+            //     alert("M-Pesa payment failed: " + data.message);
+            // }
         })
         .catch(error => {
             console.error("Error initiating M-Pesa payment:", error);
