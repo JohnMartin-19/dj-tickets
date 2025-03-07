@@ -75,18 +75,19 @@
 	</div>
 </div>
 
-<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=ASwyqunYoTCfitJBiuvzQ89OonaDWm7m27kFRM8-JmJEuq7Dj0V6AegDXVVT01Fi7Rz6fVrwbKAsdp0Z&currency=USD"></script>
 
 
 <script>
     // Render the PayPal button into #paypal-button-container
+    var total = parseFloat('{{ order.get_cart_total }}'); 
     paypal.Buttons({
         // Call your server to set up the transaction
         createOrder: function(data, actions) {
             return actions.order.create({
                 purchase_units: [{
                     amount: {
-                        value: '0.01'
+                        value: parseFloat(total).toFixed(2)
                     }
                 }]
             });
@@ -98,6 +99,7 @@
             return actions.order.capture().then(function(details) {
                 // Show a success message to the buyer
                 alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                submitFormData()
             });
         }
 
@@ -109,7 +111,7 @@
 
 <script type="text/javascript">
     var shipping = '{{order.shipping}}'
-    var total = parseFloat('{{ order.get_cart_total }}'); 
+    
 
     if(shipping == 'False'){
         document.getElementById('shipping-info').style.display = 'none';
