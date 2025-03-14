@@ -245,18 +245,23 @@ def mpesa_callback(request):
             # Process the callback data (update database, etc.)
             print("M-Pesa callback received:", callback_data)
 
-            # Extract relevant information
-            merchant_request_id = callback_data.get("Body", {}).get("stkCallback", {}).get("MerchantRequestID")
-            checkout_request_id = callback_data.get("Body", {}).get("stkCallback", {}).get("CheckoutRequestID")
+            # Extract relevant information from the callback
             result_code = callback_data.get("Body", {}).get("stkCallback", {}).get("ResultCode")
             result_desc = callback_data.get("Body", {}).get("stkCallback", {}).get("ResultDesc")
 
-            # Example: Update your database with the transaction status
-            # ... your database logic here ...
+            if result_code == 0:
+                # Payment was successful
+                print("Payment successful: ", result_desc)
+                # Update database or session to mark payment as completed
+                # Send success response to M-Pesa
+                return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"}) 
+            else:
+                # Payment failed
+                print(f"Payment failed: {result_desc}")
+                return JsonResponse({"ResultCode": 1, "ResultDesc": "Payment failed"})
 
-            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})  # Respond with success
         except Exception as e:
             print(f"Error processing M-Pesa callback: {e}")
-            return JsonResponse({"ResultCode": 1, "ResultDesc": "Error"})  # Respond with error
+            return JsonResponse({"ResultCode": 1, "ResultDesc": "Error"})
     else:
         return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request method"})
