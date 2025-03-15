@@ -14,8 +14,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config
-import environ
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-@&tgh&_8%!i%+=76*dg(@y-e)f&7cj&rmyf&(*fg3x4*nis=_^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost','127.0.0.1']
 
 
 # Application definition
@@ -81,47 +81,49 @@ WSGI_APPLICATION = 'ticketing.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # ---------------------------------------- Database ----------------------------------------
+import os
+
+
 DATABASES = {
     "default": {
-        "ENGINE": "django_tenants.postgresql_backend",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="0.0.0.0"),
-        "PORT": config("DB_PORT", default=5432, cast=int),
-        "CONN_MAX_AGE": 300,  # Recommended: Keep connections alive for 5 minutes
-        "CONN_POOL_SIZE": 20,  # Adjust based on your server's resources
-        "OPTIONS": {
-            "options": "-c statement_timeout=30000",  # 30 seconds timeout
-            "keepalives": 1,
-            "keepalives_idle": 30,
-            "keepalives_interval": 10,
-            "keepalives_count": 5,
-        },
-        "ATOMIC_REQUESTS": False,  # Consider True for transaction management
+        'ENGINE': 'django.db.backends.postgresql',
+        "NAME": os.getenv("DB_NAME"),  # Fetch from environment variable
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),  # Default to 0.0.0.0 if not provided
+        "PORT": int(os.getenv("DB_PORT", 5432)),  # Default to 5432 if not provided
+        # "CONN_MAX_AGE": 300,  # Recommended: Keep connections alive for 5 minutes
+        # "CONN_POOL_SIZE": 20,  # Adjust based on your server's resources
+        # "OPTIONS": {
+        #     "options": "-c statement_timeout=30000",  # 30 seconds timeout
+        #     "keepalives": 1,
+        #     "keepalives_idle": 30,
+        #     "keepalives_interval": 10,
+        #     "keepalives_count": 5,
+        # },
+        # "ATOMIC_REQUESTS": False,  # Consider True for transaction management
     },
     # Add more databases here, with their own configurations
-    # naming of replicas inspired by greek alphabet
-    # alpha, beta, gamma, delta etc
     "replica_alpha": {
         "ENGINE": "django_tenants.postgresql_backend",
-        "NAME": config("ALPHA_DB_NAME"),
-        "USER": config("ALPHA_DB_USER"),
-        "PASSWORD": config("ALPHA_DB_PASSWORD"),
-        "HOST": config("ALPHA_DB_HOST"),
-        "PORT": config("ALPHA_DB_PORT"),
+        "NAME": os.getenv("ALPHA_DB_NAME"),
+        "USER": os.getenv("ALPHA_DB_USER"),
+        "PASSWORD": os.getenv("ALPHA_DB_PASSWORD"),
+        "HOST": os.getenv("ALPHA_DB_HOST"),
+        "PORT": int(os.getenv("ALPHA_DB_PORT", 5432)),
         "OPTIONS": {"read_only": True},
     },
     "replica_beta": {
         "ENGINE": "django_tenants.postgresql_backend",
-        "NAME": config("BETA_DB_NAME"),
-        "USER": config("BETA_DB_USER"),
-        "PASSWORD": config("BETA_DB_PASSWORD"),
-        "HOST": config("BETA_DB_HOST"),
-        "PORT": config("BETA_DB_PORT"),
+        "NAME": os.getenv("BETA_DB_NAME"),
+        "USER": os.getenv("BETA_DB_USER"),
+        "PASSWORD": os.getenv("BETA_DB_PASSWORD"),
+        "HOST": os.getenv("BETA_DB_HOST"),
+        "PORT": int(os.getenv("BETA_DB_PORT", 5432)),
         "OPTIONS": {"read_only": True},
     },
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
